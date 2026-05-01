@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3주 루틴 챌린지</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #f5f7f5;
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  .page-header p {
+    font-size: 13px;
+    color: #888;
+  }
+
+  .week-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .week-tab {
+    padding: 6px 18px;
+    font-size: 13px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 20px;
+    cursor: pointer;
+    color: #888;
+    background: #fff;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .week-tab.active {
+    background: #1D9E75;
+    color: #fff;
+    border-color: #1D9E75;
+    font-weight: 600;
+  }
+
+  .missions-legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .mission-tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .m1 { background: #E1F5EE; color: #0F6E56; }
+  .m2 { background: #E6F1FB; color: #185FA5; }
+  .m3 { background: #FAEEDA; color: #854F0B; }
+  .m4 { background: #FBEAF0; color: #993556; }
+
+  .summary-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    border: 1px solid #eee;
+    min-width: 80px;
+  }
+  .summary-card strong {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+  }
+
+  .participants-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .participant-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 16px;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  .participant-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .participant-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .custom-label {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 1px;
+  }
+  .status-badge {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .status-success { background: #E1F5EE; color: #0F6E56; }
+  .status-fail    { background: #FCEBEB; color: #A32D2D; }
+  .status-ongoing { background: #F5F5F5; color: #666; }
+
+  .check-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  .check-table th {
+    font-size: 10px;
+    color: #aaa;
+    font-weight: 500;
+    text-align: center;
+    padding: 2px 0 5px;
+  }
+  .check-table td {
+    text-align: center;
+    padding: 2px;
+    vertical-align: middle;
+  }
+  .icon-cell {
+    text-align: left !important;
+    padding-right: 8px !important;
+    white-space: nowrap;
+    font-size: 15px;
+    line-height: 1;
+  }
+  .check-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid #d8d8d8;
+    background: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+    position: relative;
+  }
+  .check-btn:hover { border-color: #1D9E75; background: #f0fbf7; }
+  .check-btn.checked {
+    background: #1D9E75;
+    border-color: #1D9E75;
+  }
+  .check-btn.checked::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 8px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .indicator-cell { padding-top: 4px !important; }
+  .day-dot {
+    width: 20px;
+    height: 5px;
+    border-radius: 3px;
+    margin: 0 auto;
+    background: #eee;
+    transition: background 0.2s;
+  }
+  .day-dot.done    { background: #1D9E75; }
+  .day-dot.partial { background: #FAC775; }
+
+  .bar-section { margin-top: 6px; }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 5px;
+  }
+  .bar-track {
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: #1D9E75;
+    transition: width 0.35s ease;
+  }
+  .bar-fill.partial { background: #FAC775; }
+
+  .add-btn {
+    display: block;
+    width: 100%;
+    max-width: 760px;
+    margin: 14px auto 0;
+    padding: 10px;
+    font-size: 13px;
+    color: #aaa;
+    border: 1.5px dashed #d0d0d0;
+    border-radius: 12px;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .add-btn:hover { background: #f5f7f5; color: #1D9E75; border-color: #1D9E75; }
+
+  @media (max-width: 480px) {
+    .icon-cell { font-size: 13px; padding-right: 4px !important; }
+    .check-btn { width: 17px; height: 17px; border-radius: 4px; }
+    .day-dot { width: 17px; }
+    .participant-card { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>🌿 3주 루틴 챌린지</h1>
+  <p>일주일에 3일 이상 완료하면 성공!</p>
+</div>
+
+<div class="week-tabs" id="weekTabs"></div>
+
+<div class="missions-legend">
+  <span class="mission-tag m1">💧💊 물+영양제</span>
+  <span class="mission-tag m2">🚶 30분 걷기</span>
+  <span class="mission-tag m3">📝 지출 기록</span>
+  <span class="mission-tag m4">⭐ 개인 미션</span>
+</div>
+
+<div class="summary-row" id="summaryRow"></div>
+<div class="participants-grid" id="participantsGrid"></div>
+<button class="add-btn" onclick="addParticipant()">+ 참가자 추가</button>
+
+<script>
+const MISSION_ICONS = ['💧💊','🚶','📝','⭐'];
+const MISSION_NAMES = ['물+영양제','30분 걷기','지출 기록'];
+const DAYS = ['월','화','수','목','금','토','일'];
+const COLORS = [
+  {bg:'#E1F5EE',text:'#0F6E56'},{bg:'#E6F1FB',text:'#185FA5'},
+  {bg:'#FAEEDA',text:'#854F0B'},{bg:'#FBEAF0',text:'#993556'},
+  {bg:'#F1EFE8',text:'#5F5E5A'},{bg:'#FAECE7',text:'#993C1D'},
+  {bg:'#EAF3DE',text:'#3B6D11'},{bg:'#EEEDFE',text:'#3C3489'},
+];
+
+const STORAGE_KEY = 'routine_challenge_v1';
+
+let currentWeek = 0;
+let participants = [];
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      participants = data.participants || [];
+      currentWeek = data.currentWeek || 0;
+    }
+  } catch(e) {}
+  if (participants.length === 0) {
+    participants = [
+      {name:'이루다쌤', custom:'독서 30분', checks:[[],[],[]]},
+      {name:'소소쌤',   custom:'스트레칭',  checks:[[],[],[]]},
+      {name:'하늘쌤',   custom:'감사일기',  checks:[[],[],[]]},
+    ];
+  }
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ participants, currentWeek }));
+  } catch(e) {}
+}
+
+function getChecks(p, week) {
+  while (p.checks.length <= week) p.checks.push([]);
+  while (p.checks[week].length < 7) p.checks[week].push([false,false,false,false]);
+  return p.checks[week];
+}
+
+function isDayDone(dc) { return dc.filter(Boolean).length >= 3; }
+
+function toggleCheck(pi, week, day, mission) {
+  const checks = getChecks(participants[pi], week);
+  checks[day][mission] = !checks[day][mission];
+  saveData();
+  render();
+}
+
+function addParticipant() {
+  const name = prompt('참가자 이름을 입력하세요');
+  if (!name) return;
+  const custom = prompt('개인 미션을 입력하세요') || '개인 미션';
+  participants.push({name, custom, checks:[[],[],[]]});
+  saveData();
+  render();
+}
+
+function setWeek(w) { currentWeek = w; saveData(); render(); }
+
+function render() {
+  renderWeekTabs();
+  renderSummary();
+  renderParticipants();
+}
+
+function renderWeekTabs() {
+  document.getElementById('weekTabs').innerHTML =
+    ['1주차','2주차','3주차'].map((w,i) =>
+      `<button class="week-tab${i===currentWeek?' active':''}" onclick="setWeek(${i})">${w}</button>`
+    ).join('');
+}
+
+function renderSummary() {
+  const totalP = participants.length;
+  const successCount = participants.filter(p =>
+    getChecks(p, currentWeek).filter(dc => isDayDone(dc)).length >= 3
+  ).length;
+  const allDone = participants.reduce((a,p) =>
+    a + getChecks(p, currentWeek).filter(dc => isDayDone(dc)).length, 0
+  );
+  const rate = totalP > 0 ? Math.round(allDone / (totalP * 7) * 100) : 0;
+  document.getElementById('summaryRow').innerHTML = `
+    <div class="summary-card"><strong>${totalP}명</strong>참가자</div>
+    <div class="summary-card"><strong>${successCount}명</strong>성공 중</div>
+    <div class="summary-card"><strong>${rate}%</strong>전체 달성률</div>
+  `;
+}
+
+function renderParticipants() {
+  document.getElementById('participantsGrid').innerHTML = participants.map((p, pi) => {
+    const col = COLORS[pi % COLORS.length];
+    const checks = getChecks(p, currentWeek);
+    const doneDays = checks.filter(dc => isDayDone(dc)).length;
+    const totalChecks = checks.reduce((a,dc) => a + dc.filter(Boolean).length, 0);
+    const pct = Math.round(totalChecks / 28 * 100);
+    const statusText = doneDays >= 3 ? '✅ 성공' : doneDays > 0 ? '진행중' : '미시작';
+    const statusClass = doneDays >= 3 ? 'status-success' : doneDays > 0 ? 'status-ongoing' : 'status-fail';
+    const allNames = [...MISSION_NAMES, p.custom];
+
+    const thCols = DAYS.map(d => `<th>${d}</th>`).join('');
+    const missionRows = MISSION_ICONS.map((icon, mi) => {
+      const cells = DAYS.map((_,di) =>
+        `<td><button class="check-btn${checks[di][mi]?' checked':''}" title="${allNames[mi]}" onclick="toggleCheck(${pi},${currentWeek},${di},${mi})"></button></td>`
+      ).join('');
+      return `<tr><td class="icon-cell">${icon}</td>${cells}</tr>`;
+    }).join('');
+
+    const indicatorCells = DAYS.map((_,di) => {
+      const dc = checks[di];
+      const cls = isDayDone(dc) ? 'done' : dc.some(Boolean) ? 'partial' : '';
+      return `<td class="indicator-cell"><div class="day-dot ${cls}"></div></td>`;
+    }).join('');
+
+    const barClass = pct >= 75 ? 'bar-fill' : 'bar-fill partial';
+
+    return `<div class="participant-card">
+      <div class="participant-header">
+        <div class="avatar" style="background:${col.bg};color:${col.text}">${p.name.slice(0,2)}</div>
+        <div>
+          <div class="participant-name">${p.name}</div>
+          <div class="custom-label">⭐ ${p.custom}</div>
+        </div>
+        <div class="status-badge ${statusClass}">${statusText} ${doneDays}/7일</div>
+      </div>
+      <table class="check-table">
+        <thead><tr><th></th>${thCols}</tr></thead>
+        <tbody>${missionRows}<tr><td></td>${indicatorCells}</tr></tbody>
+      </table>
+      <div class="bar-section">
+        <div class="bar-label"><span>이번 주 달성률</span><span>${pct}%</span></div>
+        <div class="bar-track"><div class="${barClass}" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+loadData();
+render();
+</script>
+</body>
+</html>
